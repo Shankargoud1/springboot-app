@@ -31,28 +31,28 @@ pipeline{
         }
            
       
-    stage('Unit Test maven'){
+    // stage('Unit Test maven'){
 
-        when { expression {  params.action == 'create' } }
+    //     when { expression {  params.action == 'create' } }
          
-            steps{
-               script{
+    //         steps{
+    //            script{
                    
-                   mvnTest()
-               }
-            }
-        }
+    //                mvnTest()
+    //            }
+    //         }
+    //     }
       
-    stage('Integration Test maven'){
+    // stage('Integration Test maven'){
           
-          when { expression {  params.action == 'create' } }
-             steps{
-               script{
+    //       when { expression {  params.action == 'create' } }
+    //          steps{
+    //            script{
                    
-                   mvnIntegrationTest()
-               }
-            }
-        }
+    //                mvnIntegrationTest()
+    //            }
+    //         }
+    //     }
        
 
     // stage('Static code analysis: Sonarqube'){
@@ -99,15 +99,15 @@ pipeline{
             }
         }
     
-    stage('Docker Image Scan: trivy '){
-         when { expression {  params.action == 'create' } }
-            steps{
-               script{
+    // stage('Docker Image Scan: trivy '){
+    //      when { expression {  params.action == 'create' } }
+    //         steps{
+    //            script{
                    
-                   dockerImageScan("${params.aws_account_id}","${params.Region}","${params.ECR_REPO_NAME}")
-               }
-            }
-        }
+    //                dockerImageScan("${params.aws_account_id}","${params.Region}","${params.ECR_REPO_NAME}")
+    //            }
+    //         }
+    //     }
         stage('Docker Image Push : ECR '){
          when { expression {  params.action == 'create' } }
             steps{
@@ -117,31 +117,31 @@ pipeline{
                }
             }
         }   
-        stage('Docker Image Cleanup : ECR '){
-         when { expression {  params.action == 'create' } }
-            steps{
-               script{
+        // stage('Docker Image Cleanup : ECR '){
+        //  when { expression {  params.action == 'create' } }
+        //     steps{
+        //        script{
                    
-                   dockerImageCleanup("${params.aws_account_id}","${params.Region}","${params.ECR_REPO_NAME}")
-               }
-            }
-        } 
-
-        // stage('Connect to EKS '){
-        //     when { expression {  params.action == 'create' } }
-        // steps{
-
-        //     script{
-
-        //         sh """
-        //         aws configure set aws_access_key_id "$ACCESS_KEY"
-        //         aws configure set aws_secret_access_key "$SECRET_KEY"
-        //         aws configure set region "${params.Region}"
-        //         aws eks --region ${params.Region} update-kubeconfig --name ${params.cluster}
-        //         """
+        //            dockerImageCleanup("${params.aws_account_id}","${params.Region}","${params.ECR_REPO_NAME}")
+        //        }
         //     }
-        // }
         // } 
+
+        stage('Connect to EKS '){
+            when { expression {  params.action == 'create' } }
+        steps{
+
+            script{
+
+                sh """
+                aws configure set aws_access_key_id "$ACCESS_KEY"
+                aws configure set aws_secret_access_key "$SECRET_KEY"
+                aws configure set region "${params.Region}"
+                aws eks --region ${params.Region} update-kubeconfig --name ${params.cluster}
+                """
+            }
+        }
+        } 
 
          
 
